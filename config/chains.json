@@ -1,0 +1,22 @@
+{
+    "calculate": {
+        "s": [
+            "uuid",
+            "input_from_flag",
+            {
+                "p": [
+                    "power2",
+                    "power3",
+                    "power5"
+                ]
+            },
+            "aggregator",
+            "logger",
+            {
+                "d": [
+                    "sleep"
+                ]
+            }
+        ]
+    }
+}
