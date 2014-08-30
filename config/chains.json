@@ -2,7 +2,6 @@
     "calculate": {
         "s": [
             "uuid",
-            "input_from_flag",
             {
                 "p": [
                     "power2",
