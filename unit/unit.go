@@ -19,9 +19,14 @@ func New(name string) *Unit {
 	}
 }
 
-func (u *Unit) Send(data []byte) (resp []byte, err error) {
-	conn, err := net.DialUnix("unix", nil, &net.UnixAddr{u.socketPath(), "unix"})
-	if err != nil {
+func (u *Unit) Call(data []byte) (resp []byte, err error) {
+	var (
+		addr = &net.UnixAddr{u.socketPath(), "unix"}
+		conn *net.UnixConn
+		buf  bytes.Buffer
+	)
+
+	if conn, err = net.DialUnix("unix", nil, addr); err != nil {
 		fmt.Println("Failed opening socket:", err.Error())
 		return
 	}
@@ -36,14 +41,16 @@ func (u *Unit) Send(data []byte) (resp []byte, err error) {
 		return
 	}
 
-	var respBuf bytes.Buffer
-	if _, err = respBuf.ReadFrom(conn); err != nil {
+	if _, err = buf.ReadFrom(conn); err != nil {
 		fmt.Println("Failed read data from socket:", err.Error())
 		return
 	}
-	resp = respBuf.Bytes()
 
-	return
+	return buf.Bytes(), nil
+}
+
+func (u *Unit) Units() []string {
+	return []string{u.Name}
 }
 
 func (u *Unit) socketPath() string {
