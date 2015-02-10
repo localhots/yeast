@@ -2,6 +2,8 @@ package core
 
 import (
 	"encoding/json"
+
+	"github.com/localhots/confection"
 )
 
 type (
@@ -15,6 +17,20 @@ type (
 		WrapperPath string `json:"wrapper_path" attrs:"required" title:"Path to wrapper.py"`
 	}
 )
+
+var (
+	conf *confection.Manager
+)
+
+func Conf() Config {
+	return conf.Config().(Config)
+}
+
+func InitConfig() {
+	conf = confection.New(Config{}, ConfigDecoder)
+	go conf.StartServer()
+	conf.RequireConfig()
+}
 
 func ConfigDecoder(b []byte) interface{} {
 	var newConf Config
