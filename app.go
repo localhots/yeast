@@ -19,5 +19,7 @@ func main() {
 	core.ParseChains()
 
 	pretty.Println(core.Conf())
+
+	println("Waiting")
 	select {}
 }
