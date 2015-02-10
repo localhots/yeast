@@ -25,11 +25,11 @@ func buildChain(conf interface{}) *Chain {
 		Links: []Caller{},
 	}
 
-	for flow, links := range conf.(map[string]interface{}) {
-		if f, ok := FlowMap[flow]; ok {
-			c.Flow = f
+	for f, links := range conf.(map[string]interface{}) {
+		if flow := FlowOf(f); flow != UnknownFlow {
+			c.Flow = flow
 		} else {
-			panic("Unknown chain flow: " + flow)
+			panic("Unknown chain flow: " + f)
 		}
 
 		for _, link := range links.([]interface{}) {
@@ -42,11 +42,12 @@ func buildChain(conf interface{}) *Chain {
 					c.Links = append(c.Links, Caller(subchain))
 				}
 			case reflect.String:
-				unit, ok := Units[link.(string)]
+				name := link.(string)
+				caller, ok := Units[name]
 				if !ok {
-					fmt.Println("Unknown unit `" + link.(string) + "`")
+					fmt.Println("Unknown unit:", name)
 				} else {
-					c.Links = append(c.Links, unit)
+					c.Links = append(c.Links, caller)
 				}
 			default:
 				panic("Unexpected chain element: " + val.Kind().String())
