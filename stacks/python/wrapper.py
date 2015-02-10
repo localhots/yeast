@@ -11,8 +11,6 @@ if len(sys.argv) != 2:
     exit(1)
 
 unit = sys.argv[1]
-socket_path = '/tmp/unit_%s.sock' % unit
-
 config = json.load(open(UNITS_CONFIG_PATH)).get(unit, None)
 if not config:
     print('Unknown unit: %s' % unit)
@@ -24,26 +22,28 @@ unit_module = unit_path.pop()
 unit_path = '.'.join(unit_path)
 
 sys.path.append(YASEN_PATH)
-units = __import__(unit_path, fromlist=[unit_module])
-unit = getattr(units, unit_module)
-actor = getattr(unit, unit_func)
+_units = __import__(unit_path, fromlist=[unit_module])
+_unit = getattr(_units, unit_module)
+actor = getattr(_unit, unit_func)
 
 def process(input):
     data = json.loads(input.decode('utf-8'))
     new_data = actor(data)
     return json.dumps(new_data).encode('utf-8')
 
+SOCKET_PATH = '/tmp/unit_%s.sock' % unit
+
 # Make sure the socket does not already exist
-try: os.unlink(socket_path)
+try: os.unlink(SOCKET_PATH)
 except OSError:
-    if os.path.exists(socket_path): raise
+    if os.path.exists(SOCKET_PATH): raise
 
 # Create a UDS socket
 sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-print('Listening on socket %s' % socket_path)
-sock.bind(socket_path)
+print('Listening on socket %s' % SOCKET_PATH)
+sock.bind(SOCKET_PATH)
 
 # Listen for incoming connections
 sock.listen(1)
