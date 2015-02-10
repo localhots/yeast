@@ -3,10 +3,21 @@ package core
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"reflect"
 )
 
-func ParseChains(b []byte) (map[string]*Chain, error) {
+func ParseChains() (map[string]*Chain, error) {
+	f, err := os.Open(Conf().ChainsConfig)
+	if err != nil {
+		panic("Failed to open chains config: " + Conf().ChainsConfig)
+	}
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		panic("Failed to parse chains config: " + Conf().ChainsConfig)
+	}
+
 	var schema map[string]interface{}
 	if err := json.Unmarshal(b, &schema); err != nil {
 		return nil, err
