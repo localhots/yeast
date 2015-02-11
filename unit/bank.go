@@ -25,7 +25,7 @@ func NewBank(config string) *Bank {
 func (b *Bank) Unit(name string) Caller {
 	if u, ok := b.units[name]; ok {
 		// Check for unit implementation and create a unit if there is none
-		if imp := impl.New(u.Impl); imp != nil {
+		if imp := impl.New(u.Name, u.Impl); imp != nil {
 			return imp
 		} else {
 			return u

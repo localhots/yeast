@@ -2,14 +2,15 @@ package impl
 
 type (
 	Impl struct {
+		name  string
 		actor func([]byte) ([]byte, error)
 	}
 )
 
-func New(name string) *Impl {
-	switch name {
+func New(name, impl string) *Impl {
+	switch impl {
 	case "units.throttler.Throttler":
-		return Throttler()
+		return Throttler(name)
 	default:
 		return nil
 	}
