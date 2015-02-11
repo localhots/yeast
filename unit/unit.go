@@ -5,17 +5,32 @@ import (
 	"fmt"
 	"net"
 	"strings"
+
+	"github.com/localhots/yeast/impl"
 )
 
 type (
 	Unit struct {
-		Name string
+		Name   string
+		Impl   string
+		Config interface{}
+	}
+	Caller interface {
+		Call([]byte) ([]byte, error)
+		Units() []string
 	}
 )
 
-func New(name string) *Unit {
-	return &Unit{
-		Name: name,
+func New(name string) Caller {
+	if u, ok := units[name]; ok {
+		// Check for unit implementation and create a unit if there is none
+		if imp := impl.New(u.Impl); imp != nil {
+			return imp
+		} else {
+			return u
+		}
+	} else {
+		return nil
 	}
 }
 
