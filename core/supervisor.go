@@ -1,7 +1,7 @@
 package core
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"time"
@@ -9,25 +9,22 @@ import (
 
 type (
 	Supervisor struct {
-		pythonBin     string
-		pythonWrapper string
+		Bin     string
+		Wrapper string
 	}
 )
 
 // XXX: We're about to spawn hundreds of Python processes
-func (s *Supervisor) StartAll(units []string) {
+func (s *Supervisor) Start(units ...string) {
 	for _, name := range units {
-		s.Start(name)
-		time.Sleep(500 * time.Millisecond) // Don't spawn processes too fast
-	}
-}
+		log.Printf("Starting unit: %s", name)
 
-func (s *Supervisor) Start(name string) {
-	fmt.Println("Starting unit: " + name)
-	cmd := exec.Command(s.pythonBin, s.pythonWrapper, name)
-	cmd.Stdout = os.Stdout // Sorry
-	if err := cmd.Start(); err != nil {
-		fmt.Println("Failed to start unit: ", name)
-		fmt.Println(err.Error())
+		cmd := exec.Command(s.Bin, s.Wrapper, name)
+		cmd.Stdout = os.Stderr // Sorry
+		if err := cmd.Start(); err != nil {
+			log.Printf("Failed to start unit: %s (%s)", name, err.Error())
+		}
+
+		time.Sleep(200 * time.Millisecond) // Don't spawn processes too fast
 	}
 }
