@@ -1,4 +1,4 @@
-package core
+package chain
 
 type (
 	Flow int
