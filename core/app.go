@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	"github.com/localhots/yeast/chain"
-	"github.com/localhots/yeast/unit"
 )
 
 type (
@@ -23,10 +22,9 @@ func NewApp() *App {
 	conf := &Config{}
 	conf.Init()
 
-	ub := unit.NewBank(conf.C().UnitsConfig)
 	a := &App{
 		config: conf,
-		chains: chain.NewBank(conf.C().ChainsConfig, ub),
+		chains: chain.NewBank(conf.C().ChainsConfig, conf.C().UnitsConfig),
 		sv:     NewSupervisor(conf.C().Python.BinPath, conf.C().Python.WrapperPath),
 	}
 	a.chains.Reload()

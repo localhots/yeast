@@ -18,11 +18,11 @@ type (
 	}
 )
 
-func NewBank(config string, units *unit.Bank) *Bank {
+func NewBank(chainsConfig, unitsConfig string) *Bank {
 	return &Bank{
-		config: config,
+		config: chainsConfig,
 		chains: map[string]*Chain{},
-		units:  units,
+		units:  unit.NewBank(unitsConfig),
 	}
 }
 
