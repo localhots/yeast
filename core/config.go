@@ -2,6 +2,8 @@ package core
 
 import (
 	"encoding/json"
+	"log"
+	"os"
 
 	"github.com/localhots/confection"
 )
@@ -20,6 +22,10 @@ type (
 )
 
 func (c *Config) Init() {
+	log.SetOutput(os.Stderr)
+	log.SetFlags(log.Ltime)
+	log.SetPrefix("YEAST @ ")
+
 	c.conf = confection.New(*c, c.decoder)
 	go c.conf.StartServer()
 	c.conf.RequireConfig()
