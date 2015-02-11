@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net"
 	"strings"
-
-	"github.com/localhots/yeast/impl"
 )
 
 type (
@@ -20,19 +18,6 @@ type (
 		Units() []string
 	}
 )
-
-func New(name string) Caller {
-	if u, ok := units[name]; ok {
-		// Check for unit implementation and create a unit if there is none
-		if imp := impl.New(u.Impl); imp != nil {
-			return imp
-		} else {
-			return u
-		}
-	} else {
-		return nil
-	}
-}
 
 func (u *Unit) Call(data []byte) (resp []byte, err error) {
 	var (

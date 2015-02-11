@@ -5,8 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"time"
-
-	"github.com/localhots/yeast/unit"
 )
 
 type (
@@ -14,8 +12,8 @@ type (
 )
 
 // XXX: We're about to spawn hundreds of Python processes
-func (s *Supervisor) StartAll() {
-	for _, name := range unit.Units() {
+func (s *Supervisor) StartAll(units []string) {
+	for _, name := range units {
 		s.Start(name)
 		time.Sleep(500 * time.Millisecond) // Don't spawn processes too fast
 	}

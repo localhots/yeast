@@ -18,11 +18,6 @@ const (
 	LF = byte(10)
 )
 
-func New(name string) *Chain {
-	c, _ := chains[name]
-	return c
-}
-
 func (c *Chain) Call(data []byte) (resp []byte, err error) {
 	switch c.Flow {
 	case SequentialFlow:

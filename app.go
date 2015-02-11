@@ -17,8 +17,12 @@ func init() {
 
 func main() {
 	core.InitConfig()
-	unit.LoadUnits(core.Conf().UnitsConfig)
-	chain.LoadChains(core.Conf().ChainsConfig)
+
+	ub := unit.NewBank(core.Conf().UnitsConfig)
+	ub.Reload()
+
+	cb := chain.NewBank(core.Conf().ChainsConfig, ub)
+	cb.Reload()
 
 	pretty.Println(core.Conf())
 
