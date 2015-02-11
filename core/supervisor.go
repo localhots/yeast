@@ -38,3 +38,12 @@ func (s *Supervisor) Start(units ...string) {
 		time.Sleep(200 * time.Millisecond) // Don't spawn processes too fast
 	}
 }
+
+func (s *Supervisor) Shutdown() {
+	for name, cmd := range s.procs {
+		log.Printf("Stopping unit: %s", name)
+		if err := cmd.Process.Kill(); err != nil {
+			log.Printf("Failed to kill unit: %s (%s)", name, err.Error())
+		}
+	}
+}

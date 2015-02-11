@@ -2,6 +2,10 @@ package core
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/localhots/yeast/chain"
 	"github.com/localhots/yeast/unit"
@@ -41,6 +45,17 @@ func (a *App) Call(chainName string, data []byte) (resp []byte, err error) {
 	} else {
 		return nil, fmt.Errorf("Unknown chain: %s", chainName)
 	}
+}
+
+func (a *App) HandleInterrupt() {
+	shutdown := make(chan os.Signal)
+	signal.Notify(shutdown, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGINT)
+	go func() {
+		<-shutdown
+		log.Print("Interrupt recieved. Shutting down...")
+		a.sv.Shutdown()
+		os.Exit(0)
+	}()
 }
 
 func (a *App) BootChain(name string) {
