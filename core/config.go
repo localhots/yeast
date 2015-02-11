@@ -31,6 +31,10 @@ func (c *Config) Init() {
 	c.conf.RequireConfig()
 }
 
+func (c *Config) C() Config {
+	return c.conf.Config().(Config)
+}
+
 func (c *Config) decoder(b []byte) interface{} {
 	var newConf Config
 	if err := json.Unmarshal(b, &newConf); err != nil {
