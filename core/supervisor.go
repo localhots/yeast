@@ -8,7 +8,10 @@ import (
 )
 
 type (
-	Supervisor struct{}
+	Supervisor struct {
+		pythonBin     string
+		pythonWrapper string
+	}
 )
 
 // XXX: We're about to spawn hundreds of Python processes
@@ -21,8 +24,7 @@ func (s *Supervisor) StartAll(units []string) {
 
 func (s *Supervisor) Start(name string) {
 	fmt.Println("Starting unit: " + name)
-	conf := Conf().Python
-	cmd := exec.Command(conf.BinPath, conf.WrapperPath, name)
+	cmd := exec.Command(s.pythonBin, s.pythonWrapper, name)
 	cmd.Stdout = os.Stdout // Sorry
 	if err := cmd.Start(); err != nil {
 		fmt.Println("Failed to start unit: ", name)

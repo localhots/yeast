@@ -32,6 +32,8 @@ func (b *Bank) Chain(name string) *Chain {
 }
 
 func (b *Bank) Reload() {
+	b.units.Reload()
+
 	f, err := os.Open(b.config)
 	if err != nil {
 		panic("Failed to open chains config: " + b.config)

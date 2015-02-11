@@ -8,6 +8,7 @@ import (
 
 type (
 	Config struct {
+		conf         *confection.Manager
 		ChainsConfig string `json:"chains_config_path" attrs:"required" title:"Chains config path"`
 		UnitsConfig  string `json:"units_config_path" attrs:"required" title:"Units config path"`
 		Python       Python `json:"python" title:"Python"`
@@ -18,21 +19,13 @@ type (
 	}
 )
 
-var (
-	conf *confection.Manager
-)
-
-func Conf() Config {
-	return conf.Config().(Config)
+func (c *Config) Init() {
+	c.conf = confection.New(*c, c.decoder)
+	go c.conf.StartServer()
+	c.conf.RequireConfig()
 }
 
-func InitConfig() {
-	conf = confection.New(Config{}, ConfigDecoder)
-	go conf.StartServer()
-	conf.RequireConfig()
-}
-
-func ConfigDecoder(b []byte) interface{} {
+func (c *Config) decoder(b []byte) interface{} {
 	var newConf Config
 	if err := json.Unmarshal(b, &newConf); err != nil {
 		panic(err)
