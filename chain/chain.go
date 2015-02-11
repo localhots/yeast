@@ -1,24 +1,27 @@
-package core
+package chain
 
 import (
 	"bytes"
 	"sync"
+
+	"github.com/localhots/yeast/unit"
 )
 
 type (
 	Chain struct {
 		Flow  Flow
-		Links []Caller
-	}
-	Caller interface {
-		Call([]byte) ([]byte, error)
-		Units() []string
+		Links []unit.Caller
 	}
 )
 
 const (
 	LF = byte(10)
 )
+
+func New(name string) *Chain {
+	c, _ := chains[name]
+	return c
+}
 
 func (c *Chain) Call(data []byte) (resp []byte, err error) {
 	switch c.Flow {

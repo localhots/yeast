@@ -1,4 +1,4 @@
-package core
+package chain
 
 import (
 	"encoding/json"
@@ -6,34 +6,37 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
+
+	"github.com/localhots/yeast/unit"
 )
 
-func ParseChains() (map[string]*Chain, error) {
-	f, err := os.Open(Conf().ChainsConfig)
+var (
+	chains = map[string]*Chain{}
+)
+
+func LoadChains(path string) {
+	f, err := os.Open(path)
 	if err != nil {
-		panic("Failed to open chains config: " + Conf().ChainsConfig)
+		panic("Failed to open chains config: " + path)
 	}
 	b, err := ioutil.ReadAll(f)
 	if err != nil {
-		panic("Failed to parse chains config: " + Conf().ChainsConfig)
+		panic("Failed to read chains config: " + path)
 	}
 
 	var schema map[string]interface{}
 	if err := json.Unmarshal(b, &schema); err != nil {
-		return nil, err
+		panic("Failed to parse chains config: " + path)
 	}
 
-	chains := map[string]*Chain{}
-	for name, chain := range schema {
-		chains[name] = buildChain(interface{}(chain))
+	for name, c := range schema {
+		chains[name] = Parse(interface{}(c))
 	}
-
-	return chains, nil
 }
 
-func buildChain(conf interface{}) *Chain {
+func Parse(conf interface{}) *Chain {
 	c := &Chain{
-		Links: []Caller{},
+		Links: []unit.Caller{},
 	}
 
 	for f, links := range conf.(map[string]interface{}) {
@@ -48,17 +51,16 @@ func buildChain(conf interface{}) *Chain {
 
 			switch val.Kind() {
 			case reflect.Map:
-				subchain := buildChain(interface{}(link))
+				subchain := Parse(interface{}(link))
 				if len(subchain.Links) > 0 {
-					c.Links = append(c.Links, Caller(subchain))
+					c.Links = append(c.Links, unit.Caller(subchain))
 				}
 			case reflect.String:
 				name := link.(string)
-				caller, ok := Units[name]
-				if !ok {
-					fmt.Println("Unknown unit:", name)
-				} else {
+				if caller := unit.New(name); caller != nil {
 					c.Links = append(c.Links, caller)
+				} else {
+					fmt.Println("Unknown unit:", name)
 				}
 			default:
 				panic("Unexpected chain element: " + val.Kind().String())
