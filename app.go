@@ -5,7 +5,9 @@ import (
 
 	"github.com/kr/pretty"
 	"github.com/localhots/confection"
+	"github.com/localhots/yeast/chain"
 	"github.com/localhots/yeast/core"
+	"github.com/localhots/yeast/unit"
 )
 
 func init() {
@@ -15,8 +17,8 @@ func init() {
 
 func main() {
 	core.InitConfig()
-	core.LoadUnits()
-	core.ParseChains()
+	unit.LoadUnits(core.Conf().UnitsConfig)
+	chain.LoadChains(core.Conf().ChainsConfig)
 
 	pretty.Println(core.Conf())
 
