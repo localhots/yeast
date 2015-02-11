@@ -22,16 +22,16 @@ func NewBank(config string) *Bank {
 	}
 }
 
-func (b *Bank) Unit(name string) Caller {
+func (b *Bank) Unit(name string) (c Caller, ok bool) {
 	if u, ok := b.units[name]; ok {
 		// Check for unit implementation and create a unit if there is none
 		if imp := impl.New(u.Name, u.Impl); imp != nil {
-			return imp
+			return imp, true
 		} else {
-			return u
+			return u, true
 		}
 	} else {
-		return nil
+		return nil, false
 	}
 }
 

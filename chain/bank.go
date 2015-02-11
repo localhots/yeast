@@ -26,9 +26,9 @@ func NewBank(config string, units *unit.Bank) *Bank {
 	}
 }
 
-func (b *Bank) Chain(name string) *Chain {
-	c, _ := b.chains[name]
-	return c
+func (b *Bank) Chain(name string) (c *Chain, ok bool) {
+	c, ok = b.chains[name]
+	return
 }
 
 func (b *Bank) Reload() {
@@ -77,7 +77,7 @@ func (b *Bank) parse(conf interface{}) *Chain {
 				}
 			case reflect.String:
 				name := link.(string)
-				if caller := b.units.Unit(name); caller != nil {
+				if caller, ok := b.units.Unit(name); ok {
 					c.Links = append(c.Links, caller)
 				} else {
 					fmt.Println("Unknown unit:", name)
