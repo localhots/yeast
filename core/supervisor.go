@@ -21,7 +21,8 @@ func (s *Supervisor) StartAll() {
 
 func (s *Supervisor) Start(unit string) {
 	fmt.Println("Starting unit: " + unit)
-	cmd := exec.Command(Conf().Python.BinPath, Conf().Python.WrapperPath, unit)
+	conf := Conf().Python
+	cmd := exec.Command(conf.BinPath, conf.WrapperPath, unit)
 	cmd.Stdout = os.Stdout // Sorry
 	if err := cmd.Start(); err != nil {
 		fmt.Println("Failed to start unit: ", unit)

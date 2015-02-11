@@ -1,5 +1,10 @@
 package core
 
+import (
+	"bytes"
+	"sync"
+)
+
 type (
 	Chain struct {
 		Flow  Flow
@@ -11,8 +16,21 @@ type (
 	}
 )
 
+const (
+	LF = byte(10)
+)
+
 func (c *Chain) Call(data []byte) (resp []byte, err error) {
-	return data, nil
+	switch c.Flow {
+	case SequentialFlow:
+		return c.processSequentially(data)
+	case ParallelFlow:
+		return c.processInParallel(data)
+	case DelayedFlow:
+		return c.processDelayed(data)
+	default:
+		panic("Unreachable")
+	}
 }
 
 func (c *Chain) Units() []string {
@@ -31,4 +49,53 @@ func (c *Chain) Units() []string {
 	}
 
 	return uniq
+}
+
+func (c *Chain) processSequentially(data []byte) (resp []byte, err error) {
+	for _, caller := range c.Links {
+		if resp, err = caller.Call(data); err != nil {
+			return
+		}
+	}
+	return
+}
+
+func (c *Chain) processInParallel(data []byte) (resp []byte, err error) {
+	var (
+		inbox = make(chan []byte) // This channel must be unbuffered
+		buf   bytes.Buffer
+		wg    sync.WaitGroup
+	)
+
+	for _, caller := range c.Links {
+		wg.Add(1)
+		go func() {
+			if res, err := caller.Call(data); err == nil {
+				inbox <- res
+			}
+			wg.Done()
+		}()
+	}
+	go func() {
+		wg.Wait()
+		close(inbox)
+	}()
+
+	for {
+		if res, ok := <-inbox; ok {
+			buf.Write(res)
+			buf.WriteByte(LF) // Add linebreak
+		} else {
+			break
+		}
+	}
+
+	return buf.Bytes(), nil
+}
+
+func (c *Chain) processDelayed(data []byte) (resp []byte, err error) {
+	for _, caller := range c.Links {
+		go caller.Call(data)
+	}
+	return data, nil
 }
