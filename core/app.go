@@ -23,10 +23,7 @@ func NewApp() *App {
 	a := &App{
 		config: conf,
 		chains: chain.NewBank(conf.C().ChainsConfig, ub),
-		sv: &Supervisor{
-			Bin:     conf.C().Python.BinPath,
-			Wrapper: conf.C().Python.WrapperPath,
-		},
+		sv:     NewSupervisor(conf.C().Python.BinPath, conf.C().Python.WrapperPath),
 	}
 	a.chains.Reload()
 
